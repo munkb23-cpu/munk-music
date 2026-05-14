@@ -1,8 +1,6 @@
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { Play, Check, ArrowRight, Music2, Users, Sparkles, Shield } from 'lucide-react';
-import SiteHeader from '@/components/SiteHeader';
-import SiteFooter from '@/components/SiteFooter';
 
 export default async function HomePage() {
   const supabase = createClient();
@@ -19,6 +17,8 @@ export default async function HomePage() {
     .eq('published', true)
     .order('order_index');
 
+  const { data: { user } } = await supabase.auth.getUser();
+
   const testimonials = [
     { name: 'Баярсайхан Б.', role: 'Гитарчин', text: 'Маш сайн сургалт. Онолын суурь, бодитой дасгал хоёул хослолтой. 3 сарын дотор рок бэндэд тоглох түвшинд хүрсэн.' },
     { name: 'Ариунзаяа Т.', role: 'Хөгжмийн багш', text: 'Оюутнууддаа санал болгож байна. Ноот, таб бүгд чанартай, багш нарын тайлбар тодорхой.' },
@@ -26,25 +26,46 @@ export default async function HomePage() {
     { name: 'Энхжин Б.', role: 'Оюутан', text: 'Үкүлэлэ сурах гэж орсон. Чих хөгжлөөс эхлээд дуулах хүртэл бүрэн сургалт. Баярлалаа!' },
   ];
 
-  const stats = [
-    { count: '1,200+', label: 'Хичээл' },
-    { count: '45+', label: 'Багш' },
-    { count: '15,000+', label: 'Сурагч' },
-    { count: '98%', label: 'Сэтгэл ханамж' },
+  const instrumentStats = [
+    { count: 'Мэргэжлийн', label: 'Багш нар' },
+    { count: 'Чанартай', label: 'Хичээлүүд' },
   ];
 
   const features = [
     { icon: Music2, title: 'Бүх зэмсэг', desc: 'Гитар, басс, үкүлэлэ, морин хуур, төгөлдөр хуур — бүхэнд нь сургалт' },
     { icon: Users, title: 'Мэргэжлийн багш', desc: 'Монголын шилдэг хөгжимчид, олон улсын сургууль төгссөн багш нар' },
     { icon: Sparkles, title: 'Бодит ноот, таб', desc: 'Хамгийн сүүлийн үеийн ноот, таб, дасгалын ном — бүгд таны цахим санд' },
-    { icon: Shield, title: '30 хоногийн баталгаа', desc: 'Сэтгэл хангалуун биш бол мөнгөө буцааж авна' },
   ];
 
   return (
     <div className="min-h-screen bg-paper text-ink">
-      <SiteHeader />
+      {/* ─── HEADER ─── */}
+      <header className="sticky top-0 z-50 border-b border-line bg-paper/80 backdrop-blur-md">
+        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2.5">
+            <div className="w-9 h-9 bg-ink text-paper flex items-center justify-center rounded-full display text-xl italic">M</div>
+            <span className="display text-2xl italic">Munk Music</span>
+          </Link>
+          <nav className="hidden md:flex items-center gap-8 text-sm">
+            <Link href="/courses" className="link-underline">Хичээл</Link>
+            <Link href="/shop" className="link-underline">Ноот & Таб</Link>
+            <Link href="/courses" className="link-underline">Багш нар</Link>
+            <Link href="#pricing" className="link-underline">Үнэ</Link>
+          </nav>
+          <div className="flex items-center gap-3">
+            {user ? (
+              <Link href="/library" className="text-sm link-underline">Миний сан</Link>
+            ) : (
+              <Link href="/login" className="text-sm link-underline">Нэвтрэх</Link>
+            )}
+            <Link href="/login" className="bg-ink text-paper px-5 py-2.5 text-sm font-medium hover:bg-accent transition-colors rounded-full">
+              Үнэгүй эхлүүлэх
+            </Link>
+          </div>
+        </div>
+      </header>
 
-      {/* HERO */}
+      {/* ─── HERO ─── */}
       <section className="relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-6 pt-20 pb-24 md:pt-32 md:pb-32">
           <div className="max-w-4xl">
@@ -52,27 +73,34 @@ export default async function HomePage() {
               № 1 · Монголын онлайн хөгжмийн сургууль
             </div>
             <h1 className="display text-6xl md:text-8xl lg:text-9xl leading-[0.95] mb-8 fade-up fade-up-delay-1">
-              Хөгжмөө <em className="text-accent">сайжруулах</em><br />
-              бүхэн энд байна
+              Хөгжмийн мэдлэгт тань<br />
+              <em className="text-accent">хэрэгтэй</em> бүхэн энд байна
             </h1>
             <p className="text-xl md:text-2xl text-muted max-w-2xl leading-relaxed mb-10 fade-up fade-up-delay-2">
-              Монголын шилдэг хөгжимчдөөс гитар, басс, үкүлэлэ, жазз гармони сур.
+              Монголын шилдэг хөгжимчдөөс гитар, басс, үкүлэлэ, жазз гармони сур. 
               Ноот, таб, номын сангаар суралцаж, өөрийн хэв маягаа олоорой.
             </p>
             <div className="flex flex-wrap gap-4 fade-up fade-up-delay-3">
-              <Link href="/login" className="group bg-ink text-paper px-8 py-4 rounded-full text-base font-medium hover:bg-accent transition-colors inline-flex items-center gap-2">
+              <Link
+                href="/login"
+                className="group bg-ink text-paper px-8 py-4 rounded-full text-base font-medium hover:bg-accent transition-colors inline-flex items-center gap-2"
+              >
                 Одоо эхлүүлэх
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Link>
-              <Link href="/courses" className="px-8 py-4 rounded-full text-base font-medium border border-ink hover:bg-ink hover:text-paper transition-colors inline-flex items-center gap-2">
+              <Link
+                href="/courses"
+                className="px-8 py-4 rounded-full text-base font-medium border border-ink hover:bg-ink hover:text-paper transition-colors inline-flex items-center gap-2"
+              >
                 <Play className="w-4 h-4 fill-current" />
                 Хичээл үзэх
               </Link>
             </div>
           </div>
 
-          <div className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-8 border-t border-line pt-10">
-            {stats.map((s, i) => (
+          {/* Stats */}
+          <div className="mt-20 grid grid-cols-1 md:grid-cols-2 gap-8 border-t border-line pt-10">
+            {instrumentStats.map((s, i) => (
               <div key={i}>
                 <div className="display text-5xl md:text-6xl">{s.count}</div>
                 <div className="mono text-xs uppercase tracking-widest text-muted mt-2">{s.label}</div>
@@ -80,10 +108,14 @@ export default async function HomePage() {
             ))}
           </div>
         </div>
-        <div className="absolute top-1/3 right-0 display text-[200px] italic text-ink/5 pointer-events-none select-none hidden lg:block">♪</div>
+
+        {/* Decorative text */}
+        <div className="absolute top-1/3 right-0 display text-[200px] italic text-ink/5 pointer-events-none select-none hidden lg:block">
+          ♪
+        </div>
       </section>
 
-      {/* MARQUEE */}
+      {/* ─── MARQUEE ─── */}
       <section className="border-y border-line bg-cream py-6 overflow-hidden">
         <div className="flex gap-12 mono text-sm uppercase tracking-widest whitespace-nowrap marquee">
           {[...Array(2)].flatMap((_, i) =>
@@ -95,7 +127,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* COURSES */}
+      {/* ─── COURSES ─── */}
       <section className="py-24">
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex items-end justify-between mb-12">
@@ -112,14 +144,29 @@ export default async function HomePage() {
 
           <div className="grid md:grid-cols-3 gap-6">
             {courses?.slice(0, 6).map((c) => (
-              <Link key={c.id} href={`/courses/${c.slug}`} className="group block card-hover">
-                <div className="aspect-[3/4] relative overflow-hidden noise" style={{ backgroundColor: c.color }}>
+              <Link
+                key={c.id}
+                href={`/courses/${c.slug}`}
+                className="group block card-hover"
+              >
+                <div
+                  className="aspect-[3/4] relative overflow-hidden noise"
+                  style={{ backgroundColor: c.color }}
+                >
                   <div className="absolute inset-0 p-6 flex flex-col justify-between">
-                    <div className="mono text-xs uppercase tracking-widest text-paper/80">{c.duration}</div>
-                    <div className="display text-7xl text-paper/90 text-right">{c.icon}</div>
+                    <div className="mono text-xs uppercase tracking-widest text-paper/80">
+                      {c.duration}
+                    </div>
+                    <div className="display text-7xl text-paper/90 text-right">
+                      {c.icon}
+                    </div>
                     <div>
-                      <div className="mono text-xs uppercase tracking-widest text-paper/70 mb-2">{c.level}</div>
-                      <h3 className="display text-3xl text-paper leading-tight">{c.title}</h3>
+                      <div className="mono text-xs uppercase tracking-widest text-paper/70 mb-2">
+                        {c.level}
+                      </div>
+                      <h3 className="display text-3xl text-paper leading-tight">
+                        {c.title}
+                      </h3>
                     </div>
                   </div>
                   <div className="absolute top-6 right-6 w-10 h-10 rounded-full bg-paper/10 backdrop-blur flex items-center justify-center text-paper group-hover:bg-accent transition-colors">
@@ -128,7 +175,9 @@ export default async function HomePage() {
                 </div>
                 <div className="pt-4 flex items-baseline justify-between">
                   <p className="text-sm text-muted italic">{c.subtitle}</p>
-                  {c.price > 0 && <span className="display text-xl">₮{c.price.toLocaleString()}</span>}
+                  {c.price > 0 && (
+                    <span className="display text-xl">₮{c.price.toLocaleString()}</span>
+                  )}
                 </div>
               </Link>
             ))}
@@ -136,14 +185,15 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* FEATURES */}
+      {/* ─── FEATURES ─── */}
       <section className="bg-cream py-24 noise">
         <div className="max-w-7xl mx-auto px-6 relative">
           <div className="mono text-xs uppercase tracking-[0.25em] text-muted mb-3">Яагаад Munk Music?</div>
           <h2 className="display text-5xl md:text-6xl mb-16 max-w-3xl">
-            Хурдан ахиж, <em>удаан</em> үргэлжлэх<br />
+            Хурдан ахиж, <em>удаан</em> үргэлжлэх <br/>
             хөгжмийн аялал
           </h2>
+
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {features.map((f, i) => (
               <div key={i} className="group">
@@ -158,18 +208,21 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* PRODUCTS */}
+      {/* ─── PRODUCTS ─── */}
       <section className="py-24">
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex items-end justify-between mb-12">
             <div>
               <div className="mono text-xs uppercase tracking-[0.25em] text-muted mb-3">Ноот & Таб</div>
-              <h2 className="display text-5xl md:text-6xl">Номын <em>сан</em></h2>
+              <h2 className="display text-5xl md:text-6xl">
+                Номын <em>сан</em>
+              </h2>
             </div>
             <Link href="/shop" className="hidden md:inline-flex items-center gap-2 text-sm link-underline">
               Бүгдийг үзэх <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
+
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             {products?.map((p) => (
               <Link key={p.id} href={`/shop/${p.id}`} className="group card-hover">
@@ -187,7 +240,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* TESTIMONIALS */}
+      {/* ─── TESTIMONIALS ─── */}
       <section className="bg-ink text-paper py-24">
         <div className="max-w-7xl mx-auto px-6">
           <div className="mono text-xs uppercase tracking-[0.25em] text-paper/60 mb-3">Сурагчид</div>
@@ -195,6 +248,7 @@ export default async function HomePage() {
             15,000+ хөгжимчдийн<br />
             <em className="text-accent">итгэмжлэл</em>
           </h2>
+
           <div className="grid md:grid-cols-2 gap-6">
             {testimonials.map((t, i) => (
               <div key={i} className="border border-paper/15 p-8 hover:border-accent transition-colors">
@@ -215,14 +269,18 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* PRICING */}
+      {/* ─── PRICING ─── */}
       <section id="pricing" className="py-24">
         <div className="max-w-5xl mx-auto px-6">
           <div className="text-center mb-16">
             <div className="mono text-xs uppercase tracking-[0.25em] text-muted mb-3">Үнийн багц</div>
-            <h2 className="display text-5xl md:text-6xl">Эхлэхэд <em>бэлэн</em> үү?</h2>
+            <h2 className="display text-5xl md:text-6xl">
+              Эхлэхэд <em>бэлэн</em> үү?
+            </h2>
           </div>
+
           <div className="grid md:grid-cols-2 gap-6">
+            {/* Free */}
             <div className="border border-ink p-8 rounded-2xl">
               <h3 className="display text-3xl mb-1">Үнэгүй</h3>
               <p className="text-muted mb-6">Суралцаж эхлэх</p>
@@ -240,6 +298,8 @@ export default async function HomePage() {
                 ))}
               </ul>
             </div>
+
+            {/* Pro */}
             <div className="border-2 border-ink bg-ink text-paper p-8 rounded-2xl relative">
               <div className="absolute -top-3 left-8 bg-accent text-paper text-xs mono uppercase tracking-widest px-3 py-1 rounded-full">
                 Санал болгох
@@ -259,7 +319,6 @@ export default async function HomePage() {
                   'Шинэ хичээл долоо хоног бүр',
                   'Ноот/таб номын санд 30% хямдрал',
                   'Live Q&A, багштай холбогдох',
-                  '30 хоногт буцааж өгөх баталгаа',
                 ].map((f, i) => (
                   <li key={i} className="flex items-start gap-3 text-sm">
                     <Check className="w-4 h-4 mt-0.5 text-accent flex-shrink-0" />
@@ -272,20 +331,38 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* FAQ */}
+      {/* ─── FAQ ─── */}
       <section className="bg-cream py-24">
         <div className="max-w-3xl mx-auto px-6">
           <div className="text-center mb-16">
             <div className="mono text-xs uppercase tracking-[0.25em] text-muted mb-3">Асуулт</div>
-            <h2 className="display text-5xl md:text-6xl">Байнга асуудаг</h2>
+            <h2 className="display text-5xl md:text-6xl">
+              Байнга асуудаг
+            </h2>
           </div>
+
           <div className="divide-y divide-line border-y border-line">
             {[
-              { q: 'Munk Music гэж юу вэ?', a: 'Монголын хамгийн том онлайн хөгжмийн сургалтын платформ. Гитар, басс, үкүлэлэ, онол, жазз гармоний хичээлүүд, ноот, таб, ном — бүгд нэг газар.' },
-              { q: 'Хэрхэн эхлэх вэ?', a: 'Имэйлээрээ үнэгүй бүртгүүлээд, үнэгүй хичээлүүдийг шууд үзэх боломжтой. Сэтгэл хангалуун бол Pro бүртгэлд шилжинэ.' },
-              { q: 'Pro багцаас хэзээ ч татгалзаж болох уу?', a: 'Тийм. Ямар ч үед цуцалж болно. Цуцалсны дараа тухайн сарын төгсгөл хүртэл хандалттай үлдэнэ.' },
-              { q: 'Төлбөрийг яаж хийх вэ?', a: 'Бүх Монголын банкны аппаар QPay-ээр төлнө — Хаан, Голомт, ХХБ, Төрийн банк гэх мэт.' },
-              { q: 'Ноот, таб худалдаж авахад яах вэ?', a: 'Нэг удаа худалдаж авсан ноот, таб таны хувийн санд үүрд үлдэнэ. Хэзээ ч татаж авах, давтан харах боломжтой.' },
+              {
+                q: 'Munk Music гэж юу вэ?',
+                a: 'Монголын хамгийн том онлайн хөгжмийн сургалтын платформ. Гитар, басс, үкүлэлэ, онол, жазз гармоний хичээлүүд, ноот, таб, ном — бүгд нэг газар.',
+              },
+              {
+                q: 'Хэрхэн эхлэх вэ?',
+                a: 'Имэйлээрээ үнэгүй бүртгүүлээд, үнэгүй хичээлүүдийг шууд үзэх боломжтой. Сэтгэл хангалуун бол Pro бүртгэлд шилжинэ.',
+              },
+              {
+                q: 'Pro багцаас хэзээ ч татгалзаж болох уу?',
+                a: 'Тийм. Ямар ч үед цуцалж болно. Цуцалсны дараа тухайн сарын төгсгөл хүртэл хандалттай үлдэнэ.',
+              },
+              {
+                q: 'Төлбөрийг яаж хийх вэ?',
+                a: 'Бүх Монголын банкны аппаар QPay-ээр төлнө — Хаан, Голомт, ХХБ, Төрийн банк гэх мэт. QR код уншуулах эсвэл апп нээгээд 2-3 товч дарахад боллоо.',
+              },
+              {
+                q: 'Ноот, таб худалдаж авахад яах вэ?',
+                a: 'Нэг удаа худалдаж авсан ноот, таб таны хувийн санд үүрд үлдэнэ. Хэзээ ч татаж авах, давтан харах боломжтой.',
+              },
             ].map((item, i) => (
               <details key={i} className="group py-6 cursor-pointer">
                 <summary className="flex items-center justify-between list-none">
@@ -301,7 +378,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* CTA */}
+      {/* ─── CTA ─── */}
       <section className="py-24">
         <div className="max-w-5xl mx-auto px-6 text-center">
           <h2 className="display text-6xl md:text-8xl leading-[0.95] mb-8">
@@ -309,7 +386,7 @@ export default async function HomePage() {
             <em className="text-accent">эхэл</em>
           </h2>
           <p className="text-xl text-muted max-w-2xl mx-auto mb-10">
-            14 хоногийн үнэгүй туршилт. Картын мэдээлэл шаардахгүй.
+            Үнэгүй бүртгүүлж хөгжмийн аяллаа эхлүүлээрэй.
           </p>
           <Link href="/login" className="inline-flex items-center gap-2 bg-ink text-paper px-10 py-5 rounded-full text-lg font-medium hover:bg-accent transition-colors">
             Үнэгүй бүртгүүлэх
@@ -318,7 +395,52 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <SiteFooter />
+      {/* ─── FOOTER ─── */}
+      <footer className="border-t border-line py-12">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid md:grid-cols-4 gap-8 mb-12">
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-8 h-8 bg-ink text-paper flex items-center justify-center rounded-full display italic">M</div>
+                <span className="display text-xl italic">Munk Music</span>
+              </div>
+              <p className="text-sm text-muted">
+                Монголын онлайн хөгжмийн сургууль. Хөгжмөө олж нээ.
+              </p>
+            </div>
+            <div>
+              <div className="mono text-xs uppercase tracking-widest text-muted mb-4">Хичээл</div>
+              <ul className="space-y-2 text-sm">
+                <li><Link href="/courses" className="link-underline">Гитар</Link></li>
+                <li><Link href="/courses" className="link-underline">Басс</Link></li>
+                <li><Link href="/courses" className="link-underline">Үкүлэлэ</Link></li>
+                <li><Link href="/courses" className="link-underline">Жазз гармони</Link></li>
+              </ul>
+            </div>
+            <div>
+              <div className="mono text-xs uppercase tracking-widest text-muted mb-4">Дэлгүүр</div>
+              <ul className="space-y-2 text-sm">
+                <li><Link href="/shop" className="link-underline">Ноот</Link></li>
+                <li><Link href="/shop" className="link-underline">Таб</Link></li>
+                <li><Link href="/shop" className="link-underline">Ном</Link></li>
+              </ul>
+            </div>
+            <div>
+              <div className="mono text-xs uppercase tracking-widest text-muted mb-4">Холбоо</div>
+              <ul className="space-y-2 text-sm">
+                <li><a href="mailto:hello@munkmusic.mn" className="link-underline">hello@munkmusic.mn</a></li>
+                <li><a href="#" className="link-underline">Instagram</a></li>
+                <li><a href="#" className="link-underline">Facebook</a></li>
+                <li><a href="#" className="link-underline">YouTube</a></li>
+              </ul>
+            </div>
+          </div>
+          <div className="pt-8 border-t border-line flex flex-wrap items-center justify-between gap-4 text-sm text-muted">
+            <div>© 2026 Munk Music. Бүх эрх хуулиар хамгаалагдсан.</div>
+            <div className="mono text-xs uppercase tracking-widest">Монголд бүтээв · est. 2026</div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
