@@ -73,12 +73,12 @@ export default async function HomePage() {
               № 1 · Монголын онлайн хөгжмийн сургууль
             </div>
             <h1 className="display text-6xl md:text-8xl lg:text-9xl leading-[0.95] mb-8 fade-up fade-up-delay-1">
-              Хөгжмийн мэдлэгт тань<br />
-              <em className="text-accent">хэрэгтэй</em> бүхэн энд байна
+              Хөгжмийн <em className="text-accent">аялалд</em><br />
+              хэрэгтэй бүхэн энд байна
             </h1>
             <p className="text-xl md:text-2xl text-muted max-w-2xl leading-relaxed mb-10 fade-up fade-up-delay-2">
-              Монголын шилдэг хөгжимчдөөс гитар, басс, үкүлэлэ, жазз гармони сур. 
-              Ноот, таб, номын сангаар суралцаж, өөрийн хэв маягаа олоорой.
+              15 жилээс дээш туршлагатай багш нар тань цэвэр туршлага дээрээ тулгуурлан 
+              дэлхийн стандарт түвшинд бэлтгэсэн хичээлүүд таныг хүлээж байна.
             </p>
             <div className="flex flex-wrap gap-4 fade-up fade-up-delay-3">
               <Link
@@ -302,7 +302,7 @@ export default async function HomePage() {
             {/* Pro */}
             <div className="border-2 border-ink bg-ink text-paper p-8 rounded-2xl relative">
               <div className="absolute -top-3 left-8 bg-accent text-paper text-xs mono uppercase tracking-widest px-3 py-1 rounded-full">
-                Санал болгох
+                Удахгүй гарна
               </div>
               <h3 className="display text-3xl mb-1">Pro</h3>
               <p className="text-paper/60 mb-6">Бүрэн эрхтэй хэрэглэгч</p>
@@ -310,9 +310,9 @@ export default async function HomePage() {
                 <span className="display text-6xl">₮39,000</span>
               </div>
               <p className="mono text-xs uppercase tracking-widest text-paper/60 mb-8">Сар бүр</p>
-              <Link href="/login" className="block text-center bg-accent text-paper py-3 rounded-full hover:bg-accent-dark transition-colors mb-8">
-                Сонгох
-              </Link>
+              <div className="block text-center bg-paper/10 text-paper/60 py-3 rounded-full mb-8 cursor-not-allowed border border-paper/20">
+                Удахгүй нээгдэнэ
+              </div>
               <ul className="space-y-3">
                 {[
                   'Бүх сургалтад хязгааргүй хандах',
