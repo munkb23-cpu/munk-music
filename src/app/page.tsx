@@ -153,13 +153,22 @@ export default async function HomePage() {
                   className="aspect-[3/4] relative overflow-hidden noise"
                   style={{ backgroundColor: c.color }}
                 >
-                  <div className="absolute inset-0 p-6 flex flex-col justify-between">
+                  {c.image_url && (
+                    <img
+                      src={c.image_url}
+                      alt={c.title}
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                  )}
+                  <div className={`absolute inset-0 p-6 flex flex-col justify-between ${c.image_url ? 'bg-gradient-to-b from-black/20 via-transparent to-black/70' : ''}`}>
                     <div className="mono text-xs uppercase tracking-widest text-paper/80">
                       {c.duration}
                     </div>
-                    <div className="display text-7xl text-paper/90 text-right">
-                      {c.icon}
-                    </div>
+                    {!c.image_url && (
+                      <div className="display text-7xl text-paper/90 text-right">
+                        {c.icon}
+                      </div>
+                    )}
                     <div>
                       <div className="mono text-xs uppercase tracking-widest text-paper/70 mb-2">
                         {c.level}

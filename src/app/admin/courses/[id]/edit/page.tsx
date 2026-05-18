@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
-import { ArrowLeft, Trash2 } from 'lucide-react';
+import { ArrowLeft, Trash2, Upload, X } from 'lucide-react';
 
 const COLORS = ['#c97b4a', '#8b4a2f', '#4a2f1f', '#d4a574', '#2c3e2d', '#6b4423', '#3a2819', '#1c4d3e', '#5c2d2d'];
 const ICONS = ['🎸', '🪕', '🎷', '🎹', '🥁', '🎺', '🎻', '🎼', '♪', '♫'];
@@ -12,6 +12,7 @@ const ICONS = ['🎸', '🪕', '🎷', '🎹', '🥁', '🎺', '🎻', '🎼', '
 export default function EditCoursePage({ params }: { params: { id: string } }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
   const [form, setForm] = useState<any>(null);
 
@@ -28,6 +29,44 @@ export default function EditCoursePage({ params }: { params: { id: string } }) {
   if (!form) {
     return <div className="text-muted">Уншиж байна...</div>;
   }
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Зураг хэт том байна (хамгийн ихдээ 5MB)');
+      return;
+    }
+    if (!file.type.startsWith('image/')) {
+      setError('Зураг файл сонгоно уу');
+      return;
+    }
+
+    setUploading(true);
+    setError('');
+
+    const supabase = createClient();
+    const ext = file.name.split('.').pop();
+    const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('course-images')
+      .upload(fileName, file);
+
+    if (uploadError) {
+      setError('Upload алдаа: ' + uploadError.message);
+      setUploading(false);
+      return;
+    }
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('course-images')
+      .getPublicUrl(fileName);
+
+    setForm({ ...form, image_url: publicUrl });
+    setUploading(false);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,6 +87,7 @@ export default function EditCoursePage({ params }: { params: { id: string } }) {
         duration: form.duration,
         price: form.price,
         published: form.published,
+        image_url: form.image_url,
       })
       .eq('id', params.id);
 
@@ -103,6 +143,44 @@ export default function EditCoursePage({ params }: { params: { id: string } }) {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Зураг upload */}
+        <div>
+          <label className="mono text-xs uppercase tracking-widest text-muted block mb-2">
+            Зураг
+          </label>
+          {form.image_url ? (
+            <div className="relative">
+              <img
+                src={form.image_url}
+                alt="Сургалтын зураг"
+                className="w-full aspect-[3/4] object-cover rounded-xl"
+              />
+              <button
+                type="button"
+                onClick={() => setForm({ ...form, image_url: '' })}
+                className="absolute top-2 right-2 bg-ink text-paper rounded-full p-2 hover:bg-accent transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          ) : (
+            <label className="block border-2 border-dashed border-line p-12 rounded-xl text-center cursor-pointer hover:border-ink transition-colors">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="hidden"
+                disabled={uploading}
+              />
+              <Upload className="w-8 h-8 mx-auto text-muted mb-3" />
+              <p className="font-medium mb-1">
+                {uploading ? 'Хуулж байна...' : 'Зураг сонгох'}
+              </p>
+              <p className="text-xs text-muted">JPG, PNG · Хамгийн ихдээ 5MB</p>
+            </label>
+          )}
+        </div>
+
         <div>
           <label className="mono text-xs uppercase tracking-widest text-muted block mb-2">Гарчиг *</label>
           <input
@@ -185,7 +263,9 @@ export default function EditCoursePage({ params }: { params: { id: string } }) {
         </div>
 
         <div>
-          <label className="mono text-xs uppercase tracking-widest text-muted block mb-2">Өнгө</label>
+          <label className="mono text-xs uppercase tracking-widest text-muted block mb-2">
+            Дэвсгэр өнгө {form.image_url && '(зураггүй үед ашиглана)'}
+          </label>
           <div className="flex gap-2 flex-wrap">
             {COLORS.map((c) => (
               <button
@@ -240,7 +320,7 @@ export default function EditCoursePage({ params }: { params: { id: string } }) {
           <div className="flex items-center gap-3">
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || uploading}
               className="bg-ink text-paper px-6 py-3 rounded-full text-sm font-medium hover:bg-accent transition-colors disabled:opacity-50"
             >
               {loading ? 'Хадгалж байна...' : 'Хадгалах'}
